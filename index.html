@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Complex Resume Builder</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: Arial, sans-serif;
+    }
+
+    body {
+      display: flex;
+      flex-direction: row;
+      padding: 20px;
+      background-color: #f0f2f5;
+    }
+
+    .form-container, .preview-container {
+      flex: 1;
+      margin: 10px;
+      padding: 20px;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    h2 {
+      margin-top: 0;
+    }
+
+    label {
+      display: block;
+      margin-top: 10px;
+      font-weight: bold;
+    }
+
+    input, textarea {
+      width: 100%;
+      padding: 8px;
+      margin-top: 5px;
+      margin-bottom: 10px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+
+    .btn {
+      padding: 10px 15px;
+      background: #007bff;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+
+    .resume {
+      padding: 20px;
+      border: 1px solid #ddd;
+      min-height: 100%;
+    }
+
+    .section {
+      margin-bottom: 20px;
+    }
+
+    .section h3 {
+      border-bottom: 1px solid #007bff;
+      padding-bottom: 5px;
+      color: #007bff;
+    }
+
+    .entry {
+      margin-bottom: 10px;
+    }
+
+    @media print {
+      body {
+        background: white;
+        flex-direction: column;
+      }
+      .form-container {
+        display: none;
+      }
+      .preview-container {
+        box-shadow: none;
+        border: none;
+        margin: 0;
+        padding: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="form-container">
+    <h2>Resume Builder</h2>
+    <label for="name">Full Name</label>
+    <input type="text" id="name">
+
+    <label for="email">Email</label>
+    <input type="email" id="email">
+
+    <label for="summary">Professional Summary</label>
+    <textarea id="summary" rows="4"></textarea>
+
+    <h3>Add Experience</h3>
+    <label>Job Title</label>
+    <input type="text" id="exp-title">
+
+    <label>Company</label>
+    <input type="text" id="exp-company">
+
+    <label>Description</label>
+    <textarea id="exp-desc" rows="2"></textarea>
+
+    <button class="btn" onclick="addExperience()">Add Experience</button>
+
+    <h3>Add Education</h3>
+    <label>Degree</label>
+    <input type="text" id="edu-degree">
+
+    <label>Institution</label>
+    <input type="text" id="edu-inst">
+
+    <button class="btn" onclick="addEducation()">Add Education</button>
+
+    <h3>Add Skill</h3>
+    <input type="text" id="skill">
+
+    <button class="btn" onclick="addSkill()">Add Skill</button>
+
+    <hr>
+
+    <button class="btn" onclick="generateResume()">Generate Resume</button>
+    <button class="btn" onclick="window.print()">Print</button>
+  </div>
+
+  <div class="preview-container">
+    <h2>Resume Preview</h2>
+    <div class="resume" id="resume">
+      <!-- Populated by JS -->
+    </div>
+  </div>
+
+  <script>
+    const resume = {
+      name: '',
+      email: '',
+      summary: '',
+      experiences: [],
+      education: [],
+      skills: []
+    };
+
+    function addExperience() {
+      const title = document.getElementById('exp-title').value.trim();
+      const company = document.getElementById('exp-company').value.trim();
+      const desc = document.getElementById('exp-desc').value.trim();
+      if (title && company && desc) {
+        resume.experiences.push({ title, company, desc });
+        document.getElementById('exp-title').value = '';
+        document.getElementById('exp-company').value = '';
+        document.getElementById('exp-desc').value = '';
+        renderResume();
+      }
+    }
+
+    function addEducation() {
+      const degree = document.getElementById('edu-degree').value.trim();
+      const inst = document.getElementById('edu-inst').value.trim();
+      if (degree && inst) {
+        resume.education.push({ degree, inst });
+        document.getElementById('edu-degree').value = '';
+        document.getElementById('edu-inst').value = '';
+        renderResume();
+      }
+    }
+
+    function addSkill() {
+      const skill = document.getElementById('skill').value.trim();
+      if (skill) {
+        resume.skills.push(skill);
+        document.getElementById('skill').value = '';
+        renderResume();
+      }
+    }
+
+    function generateResume() {
+      resume.name = document.getElementById('name').value.trim();
+      resume.email = document.getElementById('email').value.trim();
+      resume.summary = document.getElementById('summary').value.trim();
+      renderResume();
+    }
+
+    function renderResume() {
+      const container = document.getElementById('resume');
+      container.innerHTML = `
+        <div class="section"><h1>${resume.name || ''}</h1><p>${resume.email || ''}</p></div>
+        <div class="section">
+          <h3>Professional Summary</h3>
+          <p>${resume.summary || ''}</p>
+        </div>
+        <div class="section">
+          <h3>Experience</h3>
+          ${resume.experiences.map(exp => `
+            <div class="entry">
+              <strong>${exp.title}</strong> at ${exp.company}<br/>
+              <p>${exp.desc}</p>
+            </div>
+          `).join('')}
+        </div>
+        <div class="section">
+          <h3>Education</h3>
+          ${resume.education.map(edu => `
+            <div class="entry">
+              <strong>${edu.degree}</strong> - ${edu.inst}
+            </div>
+          `).join('')}
+        </div>
+        <div class="section">
+          <h3>Skills</h3>
+          <ul>
+            ${resume.skills.map(skill => `<li>${skill}</li>`).join('')}
+          </ul>
+        </div>
+      `;
+    }
+  </script>
+</body>
+</html>
